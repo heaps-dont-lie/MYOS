@@ -8,25 +8,26 @@
 *   address.
 */
 GlobalDescriptorTable::GlobalDescriptorTable() : 
-nullSegment(0,0,0), 
-unusedSegment(0,0,0), 
-dataSegment(0,64*1024*1024,0x9A), 
-codeSegment(0,64*1024*1024,0x92) {
-    uint32_t gdtp[2];
-    gdtp[0] = (uint32_t)this;
-    gdtp[1] = sizeof(GlobalDescriptorTable) << 16;
+nullSegmentPointer(0,0,0), 
+unusedSegmentPointer(0,0,0),
+codeSegmentPointer(0,64*1024*1024,0x9A),
+dataSegmentPointer(0,64*1024*1024,0x92) 
+{
+    uint32_t gdt_pointer[2];
+    gdt_pointer[1] = (uint32_t)this;
+    gdt_pointer[0] = sizeof(GlobalDescriptorTable) << 16;
 
     //Did not understand completely how we are loading into "lgdt"
-    asm volatile("lgdt (%0)": :"p" (((uint8_t *) gdtp) + 2));
+    asm volatile("lgdt (%0)": :"p" (((uint8_t *) gdt_pointer) + 2));
 }
 
 uint16_t GlobalDescriptorTable::codeSegmentOffset() {
-    return (uint8_t*)&codeSegment - (uint8_t*)this;
+    return (uint8_t*)&codeSegmentPointer - (uint8_t*)this;
 }
 
 
 uint16_t GlobalDescriptorTable::dataSegmentOffset() {
-    return (uint8_t*)&dataSegment - (uint8_t*)this;
+    return (uint8_t*)&dataSegmentPointer - (uint8_t*)this;
 }
 
 GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint32_t limit, uint8_t flag) {

@@ -1,16 +1,15 @@
 .set IRQ_BASE, 0x20
 
-.section text
+.section .text
 
 # This is actually the name given to the handleInterrupt function in interrupts.cpp
 # We are externing it so that we can jump to that function from assembly. Implemented in "int_bottom"
 .extern _ZN16InterruptManager15handleInterruptEhj
 
-.global _ZN16InterruptManager22IgnoreInterruptRequestEv
 
 .macro HandleException num
-.global _ZN16InterruptManager16HandleException\num\()Ev
-_ZN16InterruptManager16HandleException\num\()Ev:
+.global _ZN16InterruptManager19HandleException\num\()Ev
+_ZN16InterruptManager19HandleException\num\()Ev:
     movb $\num, (interruptNumber)
     jmp int_bottom
 .endm
@@ -22,8 +21,44 @@ _ZN16InterruptManager26HandleInterruptRequest\num\()Ev:
     jmp int_bottom
 .endm
 
+HandleException 0x00
+HandleException 0x01
+HandleException 0x02
+HandleException 0x03
+HandleException 0x04
+HandleException 0x05
+HandleException 0x06
+HandleException 0x07
+HandleException 0x08
+HandleException 0x09
+HandleException 0x0A
+HandleException 0x0B
+HandleException 0x0C
+HandleException 0x0D
+HandleException 0x0E
+HandleException 0x0F
+HandleException 0x10
+HandleException 0x11
+HandleException 0x12
+HandleException 0x13
+
 HandleInterruptRequest 0x00
 HandleInterruptRequest 0x01
+HandleInterruptRequest 0x02
+HandleInterruptRequest 0x03
+HandleInterruptRequest 0x04
+HandleInterruptRequest 0x05
+HandleInterruptRequest 0x06
+HandleInterruptRequest 0x07
+HandleInterruptRequest 0x08
+HandleInterruptRequest 0x09
+HandleInterruptRequest 0x0A
+HandleInterruptRequest 0x0B
+HandleInterruptRequest 0x0C
+HandleInterruptRequest 0x0D
+HandleInterruptRequest 0x0E
+HandleInterruptRequest 0x0F
+HandleInterruptRequest 0x31
 
 int_bottom:
 
@@ -36,18 +71,17 @@ int_bottom:
     pushl %gs
 
     pushl %esp
-    pushl (interruptNumber)
+    push (interruptNumber)
     call _ZN16InterruptManager15handleInterruptEhj
-    movl %eax, %esp     # In the handleInterrupt function we are returning esp we dont need to pop the stack pointer.
+    mov %eax, %esp     # In the handleInterrupt function we are returning esp we dont need to pop the stack pointer.
 
-    popl %gs
-    popl %fs
-    popl %es
-    popl %ds
+    pop %gs
+    pop %fs
+    pop %es
+    pop %ds
     popa
 
-    iret
-
+.global _ZN16InterruptManager22IgnoreInterruptRequestEv
 _ZN16InterruptManager22IgnoreInterruptRequestEv:
     iret
 
