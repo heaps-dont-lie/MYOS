@@ -1,9 +1,14 @@
+/*
+    Author: Aman Pandey
+    E-mail: amanpandey1235@gmail.com
+*/
+
 #include "interrupts.h"
 
 
 void printf(char* str);
 
-
+InterruptManager* InterruptManager::currentInterruptManager = NULL;
 InterruptManager::GateDescriptor InterruptManager::interruptDescriptorTable[256];
 
 void InterruptManager::setInterruptDescriptorTableEntry(uint8_t interruptNumber, uint16_t codeSegSelectorOffset, void (*handler)(), uint8_t descriptorPrivilegeLevel, uint8_t descriptorType) {
@@ -26,8 +31,10 @@ InterruptManager::InterruptManager(GlobalDescriptorTable* gdt) :
     const uint8_t IDT_INTERRUPT_GATE = 0xE;
 
     for(uint8_t i = 255; i > 0; --i) { //Need to initialize unmanaged interrupts with some template handler to avoid crash.
+        drivers[i] = NULL;
         setInterruptDescriptorTableEntry(i, CodeSegment, &IgnoreInterruptRequest, 0, IDT_INTERRUPT_GATE);
     }
+    drivers[0] = NULL;
     setInterruptDescriptorTableEntry(0, CodeSegment, &IgnoreInterruptRequest, 0, IDT_INTERRUPT_GATE);
 
     setInterruptDescriptorTableEntry(0x00, CodeSegment, &HandleException0x00, 0, IDT_INTERRUPT_GATE);
@@ -93,17 +100,79 @@ InterruptManager::InterruptManager(GlobalDescriptorTable* gdt) :
 }
 
 void InterruptManager::activate() {
+    /*  If there is some other InterruptManager instance running
+    *   then deactivate that and initialize the current InterruptManager
+    *   with the current instance.
+    */
+    if (currentInterruptManager != NULL)
+        currentInterruptManager->deactivate();
+    currentInterruptManager = this;
     asm("sti");
 }
 
-uint32_t InterruptManager::handleInterrupt(uint8_t interrupt, uint32_t esp)
-{
-    char* foo = "INTERRUPT 0x00";
-    char* hex = "0123456789ABCDEF";
+void InterruptManager::deactivate() {
+    if (currentInterruptManager == this) {
+        currentInterruptManager = NULL;
+        asm("cli");
+    }
+}
 
-    foo[12] = hex[(interrupt >> 4) & 0xF];
-    foo[13] = hex[interrupt & 0xF];
-    printf(foo);
+uint32_t InterruptManager::doHandleInterrupt(uint8_t interruptNumber, uint32_t esp) {
 
+    // If a driver exists for this interrupt then call the respective handler
+    if (drivers[interruptNumber] != NULL)
+        esp = drivers[interruptNumber]->handleInterrupt(esp);
+
+    else if (interruptNumber != TIMER_INT) {
+        char* message = "INTERRUPT 0x00";
+        char* hex = "0123456789ABCDEF";
+
+        message[12] = hex[(interruptNumber >> 4) & 0xF];
+        message[13] = hex[interruptNumber & 0xF];
+        printf(message);
+    }
+
+    /*
+    *   Once the interrupt is handled we need
+    *   to notify the PIC that last sent hardware interrupt
+    *   signal was handled and now send the next
+    *   interrupt. We notify by writting 0x20 at the 
+    *   appropriate command port.
+    *
+    *   Note: [0x20, 0x30) are all possible Hardware
+    *   interrupts.
+    *   We only write to the slave command port if the hardware
+    *   interrupt was mapped to the slave PIC.
+    */
+    if (interruptNumber >= 0x20 and interruptNumber < 0x30) {
+        programmableInterruptControllerMasterCommandPort.Write(0x20);
+        if (interruptNumber >= 0x28)
+            programmableInterruptControllerSlaveCommandPort.Write(0x20);
+    }
+    return esp;
+}
+
+uint32_t InterruptManager::handleInterrupt(uint8_t interruptNumber, uint32_t esp) {
+    if (currentInterruptManager != NULL)
+        currentInterruptManager->doHandleInterrupt(interruptNumber, esp);
+
+    return esp;
+}
+
+Driver::Driver(uint8_t interruptNumber, InterruptManager* interruptManager) {
+    this->interruptNumber = interruptNumber;
+    this->interruptManager = interruptManager;
+
+    // Register this driver into the list of drivers for this interrupt manager.
+    interruptManager->drivers[interruptNumber] = this;
+}
+
+Driver::~Driver() {
+    // Unregister the driver from the list of drivers for this interrupt manager
+    if (interruptManager->drivers[interruptNumber] == this)
+        interruptManager->drivers[interruptNumber] = NULL;
+}
+
+uint32_t Driver::handleInterrupt(uint32_t esp) {
     return esp;
 }

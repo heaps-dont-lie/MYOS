@@ -1,13 +1,27 @@
+/*
+    Author: Aman Pandey
+    E-mail: amanpandey1235@gmail.com
+*/
+
 #ifndef __INTERRUPTS_H
 #define __INTERRUPTS_H
 
-#include "types.h"
+#include "stdio.h"
 #include "ports.h"
 #include "gdt.h"
 
+const uint8_t TIMER_INT     = 0x20;
+const uint8_t KEYB_INT      = 0x21;
+
+class Driver;
+
 class InterruptManager {
+    friend class Driver;
 
     protected:
+
+        Driver* drivers[256]; // Storing drivers for respective interrupts/exceptions
+        static InterruptManager* currentInterruptManager;
 
         struct GateDescriptor {
             uint16_t handlerAddressLowBits;
@@ -80,7 +94,26 @@ class InterruptManager {
         ~InterruptManager();
 
         void activate();
-
+        void deactivate();
+        uint32_t doHandleInterrupt(uint8_t interruptNumber, uint32_t esp);
 };
 
+
+/*
+* A driver base class. Drivers (Keyboard driver, for example)
+* can inherit from this base class
+*/
+class Driver {
+
+    protected:
+        uint8_t interruptNumber;
+        InterruptManager* interruptManager;
+
+        Driver(uint8_t interruptNumber, InterruptManager* interruptManager);
+        ~Driver();
+
+    public:
+        virtual uint32_t handleInterrupt(uint32_t esp);
+
+};
 #endif

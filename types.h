@@ -1,3 +1,8 @@
+/*
+    Author: Aman Pandey
+    E-mail: amanpandey1235@gmail.com
+*/
+
 #ifndef __TYPES_H
 #define __TYPES_H
 
