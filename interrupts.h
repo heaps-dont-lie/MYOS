@@ -12,15 +12,16 @@
 
 const uint8_t TIMER_INT     = 0x20;
 const uint8_t KEYB_INT      = 0x21;
+const uint8_t MOUSE_INT     = 0x2C;
 
-class Driver;
+class HardwareInterruptHandler;
 
 class InterruptManager {
-    friend class Driver;
+    friend class HardwareInterruptHandler;
 
     protected:
 
-        Driver* drivers[256]; // Storing drivers for respective interrupts/exceptions
+        HardwareInterruptHandler* drivers[256]; // Storing drivers for respective interrupts/exceptions
         static InterruptManager* currentInterruptManager;
 
         struct GateDescriptor {
@@ -100,17 +101,18 @@ class InterruptManager {
 
 
 /*
-* A driver base class. Drivers (Keyboard driver, for example)
-* can inherit from this base class
+* A HardwareInterruptHandler base class. Drivers (Keyboard driver, for example)
+* can inherit from this base class so that its easier for Interrupt manager
+* to handover the hardware interrupts to the appropriate hardware drivers.
 */
-class Driver {
+class HardwareInterruptHandler {
 
     protected:
         uint8_t interruptNumber;
         InterruptManager* interruptManager;
 
-        Driver(uint8_t interruptNumber, InterruptManager* interruptManager);
-        ~Driver();
+        HardwareInterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager);
+        ~HardwareInterruptHandler();
 
     public:
         virtual uint32_t handleInterrupt(uint32_t esp);

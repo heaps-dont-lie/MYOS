@@ -9,18 +9,18 @@
 extern void printf(char*);
 
 KeyboardDriver::KeyboardDriver(InterruptManager* interruptManager) 
-: Driver(KEYB_INT, interruptManager), commandPort(0x64), dataPort(0x60) {
+: HardwareInterruptHandler(KEYB_INT, interruptManager), commandPort(0x64), dataPort(0x60) {
 
     // Default value of modifier key is normal
     modKeys = MOD_NORMAL;
 
     // Initialise the keyboard hardware.
-    _initialise();
+    initHardware();
 }
 
 KeyboardDriver::~KeyboardDriver() {}
 
-void KeyboardDriver::_initialise() {
+void KeyboardDriver::initHardware() {
     // Disable the keyboard interrupts
     commandPort.Write(0xAD);
 
@@ -31,8 +31,20 @@ void KeyboardDriver::_initialise() {
     //Enable keyboard interrupts
     commandPort.Write(0xAE);
 
+    // command 0x20 = read controller command byte
+    commandPort.Write(0x20);
+    uint8_t status = (dataPort.Read() | 1) & ~0x10;
+    // command 0x60 = set controller command byte
+    commandPort.Write(0x60);
+    dataPort.Write(status);
+
     //Enable Scanning
     dataPort.Write(0xF4);
+
+    if (dataPort.Read() != 0xFA) {
+        printf("Keyboard initialization failed.\n");
+        return;  // Handle failure case
+    }
 }
 
 uint32_t KeyboardDriver::handleInterrupt(uint32_t esp) {

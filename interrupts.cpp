@@ -159,7 +159,7 @@ uint32_t InterruptManager::handleInterrupt(uint8_t interruptNumber, uint32_t esp
     return esp;
 }
 
-Driver::Driver(uint8_t interruptNumber, InterruptManager* interruptManager) {
+HardwareInterruptHandler::HardwareInterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager) {
     this->interruptNumber = interruptNumber;
     this->interruptManager = interruptManager;
 
@@ -167,12 +167,12 @@ Driver::Driver(uint8_t interruptNumber, InterruptManager* interruptManager) {
     interruptManager->drivers[interruptNumber] = this;
 }
 
-Driver::~Driver() {
+HardwareInterruptHandler::~HardwareInterruptHandler() {
     // Unregister the driver from the list of drivers for this interrupt manager
     if (interruptManager->drivers[interruptNumber] == this)
         interruptManager->drivers[interruptNumber] = NULL;
 }
 
-uint32_t Driver::handleInterrupt(uint32_t esp) {
+uint32_t HardwareInterruptHandler::handleInterrupt(uint32_t esp) {
     return esp;
 }

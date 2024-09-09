@@ -5,8 +5,10 @@
 
 #include "stdio.h"
 #include "gdt.h"
+#include "driver.h"
 #include "interrupts.h"
 #include "keyboardDriver.h"
+#include "mouseDriver.h"
 
 // Need to understand this Lecture 1B
 typedef void (*constructor)();
@@ -31,8 +33,16 @@ extern "C" void kernelMain(void* multibootStruct, uint32_t magicNumber) {
 	*/
 	GlobalDescriptorTable gdt;
 	InterruptManager interruptManager(&gdt);
+	DriverManager driverManager;
+		printf("Initializing Keyboard...\n");
+		KeyboardDriver keyboard(&interruptManager);
+		driverManager.addDriver(&keyboard);
 
-	KeyboardDriver keyboard(&interruptManager);
+		printf("Initializing Mouse...\n");
+		MouseDriver mouse(&interruptManager);
+		driverManager.addDriver(&mouse);
+		
+	printf("Activating Interrupts...\n");
 	interruptManager.activate();
 
 	/*
