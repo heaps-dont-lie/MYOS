@@ -28,4 +28,30 @@ class MouseDriver : public HardwareInterruptHandler, public Driver {
         virtual void initHardware();
 };
 
+/* 
+    MouseEventHandler class hanldes events related to mouse
+    Different kind of mouse usage (like clicking)
+    can subscribe to this class and change the behavior of mouse.
+*/
+class MouseEventHandler {
+    
+    public:
+        MouseEventHandler();
+        ~MouseEventHandler();
+
+        virtual void keyPress(char*);
+        virtual void keyRelease(char*);
+};
+
+class PrintKeyToScreenEvent : public KeyBoardEventHandler {
+
+    public:
+        PrintToScreenEvent();
+        ~PrintToScreenEvent();
+
+        virtual void keyPress(char*);
+        virtual void keyRelease(char*);
+
+};
+
 #endif

@@ -8,11 +8,14 @@
 
 extern void printf(char*);
 
-KeyboardDriver::KeyboardDriver(InterruptManager* interruptManager) 
+KeyboardDriver::KeyboardDriver(InterruptManager* interruptManager, KeyBoardEventHandler* eventHandler) 
 : HardwareInterruptHandler(KEYB_INT, interruptManager), commandPort(0x64), dataPort(0x60) {
 
     // Default value of modifier key is normal
     modKeys = MOD_NORMAL;
+
+    // Initialise the event handler for the keboard
+    this->eventHandler = eventHandler;
 
     // Initialise the keyboard hardware.
     initHardware();
@@ -50,6 +53,9 @@ void KeyboardDriver::initHardware() {
 uint32_t KeyboardDriver::handleInterrupt(uint32_t esp) {
     uint8_t scanCode = dataPort.Read();
     unsigned char key = 0;
+
+    if (eventHandler == NULL)
+        return esp;
 
     /*
 	 * Check for modifier keycodes. If present, toggle their state (if necessary).
@@ -101,15 +107,34 @@ uint32_t KeyboardDriver::handleInterrupt(uint32_t esp) {
 
     if (key != 0) {
         char c[2] = {key, '\0'};    //appending null terminator at the end.
-        printf(c);
+        eventHandler->keyPress(c);
     } else {
         char* message = "KEYBOARD 0x00 ";
         char* hex = "0123456789ABCDEF";
 
         message[11] = hex[(scanCode >> 4) & 0xF];
         message[12] = hex[scanCode & 0xF];
-        printf(message);
+        eventHandler->keyPress(message);
     }
 
     return esp;
 }
+
+KeyBoardEventHandler::KeyBoardEventHandler() {}
+
+KeyBoardEventHandler::~KeyBoardEventHandler() {}
+
+void KeyBoardEventHandler::keyPress(char* key) {}
+
+void KeyBoardEventHandler::keyRelease(char* key) {}
+
+
+PrintKeyToScreenEvent::PrintToScreenEvent() {}
+
+PrintKeyToScreenEvent::~PrintToScreenEvent() {}
+
+void PrintKeyToScreenEvent::keyPress(char* key) {
+    printf(key);
+}
+
+void PrintKeyToScreenEvent::keyRelease(char* key) {}

@@ -35,11 +35,12 @@ extern "C" void kernelMain(void* multibootStruct, uint32_t magicNumber) {
 	InterruptManager interruptManager(&gdt);
 	DriverManager driverManager;
 		printf("Initializing Keyboard...\n");
-		KeyboardDriver keyboard(&interruptManager);
+		PrintKeyToScreenEvent eventHandler;
+		KeyboardDriver keyboard(&interruptManager, &eventHandler);
 		driverManager.addDriver(&keyboard);
 
 		printf("Initializing Mouse...\n");
-		MouseDriver mouse(&interruptManager);
+		MouseDriver mouse(&interruptManager);	//TODO: Make event handler for the mouse later.
 		driverManager.addDriver(&mouse);
 		
 	printf("Activating Interrupts...\n");
