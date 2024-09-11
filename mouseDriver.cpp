@@ -57,7 +57,7 @@ uint32_t MouseDriver::handleInterrupt(uint32_t esp) {
         return esp;  
     
     // The cursor should begin from the middle of the screen.
-    static int x = INIT_X, y = INIT_Y;
+    static int8_t x = INIT_X, y = INIT_Y;
 
     buffer[offset] = dataPort.Read();
     offset = (offset + 1) % 3; 
@@ -83,6 +83,14 @@ uint32_t MouseDriver::handleInterrupt(uint32_t esp) {
         videoMemory[80*y + x] = ((videoMemory[80*y + x] & 0xF000) >> 4)
                                 | ((videoMemory[80*y + x] & 0x0F00) << 4)
                                 | (videoMemory[80*y + x] & 0x00FF);
+
+        // Handle buttons
+        for(uint8_t i = 0; i < 3; i++) {
+            if ((buffer[0] & (0x01 << i)) != (button & (0x01 << i))) {
+                // TODO: Button is pressed
+            }
+        }
+        button = buffer[0];
     }
 
     return esp;
