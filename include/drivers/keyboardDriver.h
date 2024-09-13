@@ -6,8 +6,8 @@
 #ifndef __KEYBOARDDRIVER_H
 #define __KEYBOARDDRIVER_H
 
-#include "interrupts.h"
-#include "driver.h"
+#include <hwcomms/interrupts.h>
+#include <drivers/driver.h>
 
 /* 
     KeyBoardEventHandler class hanldes events related to keyboard
@@ -27,8 +27,8 @@ class KeyBoardEventHandler {
 class PrintKeyToScreenEvent : public KeyBoardEventHandler {
 
     public:
-        PrintToScreenEvent();
-        ~PrintToScreenEvent();
+        PrintKeyToScreenEvent();
+        ~PrintKeyToScreenEvent();
 
         virtual void keyPress(char*);
         virtual void keyRelease(char*);

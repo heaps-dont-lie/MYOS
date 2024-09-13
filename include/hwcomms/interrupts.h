@@ -6,9 +6,9 @@
 #ifndef __INTERRUPTS_H
 #define __INTERRUPTS_H
 
-#include "stdio.h"
-#include "ports.h"
-#include "gdt.h"
+#include <common/stdio.h>
+#include <hwcomms/ports.h>
+#include <gdt.h>
 
 const uint8_t TIMER_INT     = 0x20;
 const uint8_t KEYB_INT      = 0x21;

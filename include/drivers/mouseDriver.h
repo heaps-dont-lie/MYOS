@@ -1,8 +1,8 @@
 #ifndef __MOUSEDRIVER_H
 #define __MOUSEDRIVER_H
 
-#include "interrupts.h"
-#include "driver.h"
+#include <hwcomms/interrupts.h>
+#include <drivers/driver.h>
 
 #define MOUSE_BUFFER_SIZE 3
 
@@ -39,19 +39,9 @@ class MouseEventHandler {
         MouseEventHandler();
         ~MouseEventHandler();
 
-        virtual void keyPress(char*);
-        virtual void keyRelease(char*);
-};
-
-class PrintKeyToScreenEvent : public KeyBoardEventHandler {
-
-    public:
-        PrintToScreenEvent();
-        ~PrintToScreenEvent();
-
-        virtual void keyPress(char*);
-        virtual void keyRelease(char*);
-
+        virtual void onClick(int8_t x, int8_t y);
+        virtual void onRelease(int8_t x, int8_t y);
+        virtual void onMove(int8_t x, int8_t y);
 };
 
 #endif

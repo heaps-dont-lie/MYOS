@@ -3,7 +3,7 @@
     E-mail: amanpandey1235@gmail.com
 */
 
-#include "stdio.h"
+#include <common/stdio.h>
 
 void printf(char* str) {
 	static uint16_t* videoMemBaseAddr = (uint16_t*)0xb8000;

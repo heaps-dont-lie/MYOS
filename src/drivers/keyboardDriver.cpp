@@ -3,8 +3,8 @@
     E-mail: amanpandey1235@gmail.com
 */
 
-#include "keyboardDriver.h"
-#include "keyboardMap.h"
+#include <drivers/keyboardDriver.h>
+#include <drivers/keyboardMap.h>
 
 extern void printf(char*);
 
@@ -129,9 +129,9 @@ void KeyBoardEventHandler::keyPress(char* key) {}
 void KeyBoardEventHandler::keyRelease(char* key) {}
 
 
-PrintKeyToScreenEvent::PrintToScreenEvent() {}
+PrintKeyToScreenEvent::PrintKeyToScreenEvent() {}
 
-PrintKeyToScreenEvent::~PrintToScreenEvent() {}
+PrintKeyToScreenEvent::~PrintKeyToScreenEvent() {}
 
 void PrintKeyToScreenEvent::keyPress(char* key) {
     printf(key);

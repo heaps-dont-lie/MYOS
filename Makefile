@@ -1,13 +1,24 @@
-GPPPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
+GPPPARAMS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o stdio.o gdt.o driver.o ports.o interruptstubs.o interrupts.o keyboardDriver.o mouseDriver.o kernel.o
+objects = obj/loader.o \
+		  obj/common/stdio.o \
+		  obj/gdt.o \
+		  obj/drivers/driver.o \
+		  obj/hwcomms/ports.o \
+		  obj/hwcomms/interruptstubs.o \
+		  obj/hwcomms/interrupts.o \
+		  obj/drivers/keyboardDriver.o \
+		  obj/drivers/mouseDriver.o \
+		  obj/kernel.o
 
-%.o: %.cpp
+obj/%.o: src/%.cpp
+	mkdir -p $(@D)
 	g++ $(GPPPARAMS) -o $@ -c $<
 
-%.o: %.s
+obj/%.o: src/%.s
+	mkdir -p $(@D)
 	as $(ASPARAMS) -o $@ $<
 
 mykernel.bin: linker.ld $(objects)
@@ -36,5 +47,5 @@ run: mykernel.iso
 	qemu-system-i386 -boot d -cdrom $<
 	
 clean: 
-	rm *.o
+	rm -rf obj/
 	rm mykernel.*

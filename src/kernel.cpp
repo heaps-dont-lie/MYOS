@@ -3,12 +3,12 @@
     E-mail: amanpandey1235@gmail.com
 */
 
-#include "stdio.h"
-#include "gdt.h"
-#include "driver.h"
-#include "interrupts.h"
-#include "keyboardDriver.h"
-#include "mouseDriver.h"
+#include <common/stdio.h>
+#include <gdt.h>
+#include <drivers/driver.h>
+#include <hwcomms/interrupts.h>
+#include <drivers/keyboardDriver.h>
+#include <drivers/mouseDriver.h>
 
 // Need to understand this Lecture 1B
 typedef void (*constructor)();

@@ -6,7 +6,7 @@
 #ifndef __PORTS_H
 #define __PORTS_H
 
-#include "types.h"
+#include <common/types.h>
 
 
 class Port

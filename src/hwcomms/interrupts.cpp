@@ -3,7 +3,7 @@
     E-mail: amanpandey1235@gmail.com
 */
 
-#include "interrupts.h"
+#include <hwcomms/interrupts.h>
 
 
 void printf(char* str);
