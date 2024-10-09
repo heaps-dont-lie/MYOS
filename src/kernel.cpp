@@ -3,12 +3,14 @@
     E-mail: amanpandey1235@gmail.com
 */
 
-#include <common/stdio.h>
 #include <gdt.h>
+#include <common/stdio.h>
 #include <drivers/driver.h>
-#include <hwcomms/interrupts.h>
 #include <drivers/keyboardDriver.h>
 #include <drivers/mouseDriver.h>
+#include <drivers/vgaDriver.h>
+#include <hwcomms/interrupts.h>
+#include <hwcomms/pci.h>
 
 // Need to understand this Lecture 1B
 typedef void (*constructor)();
@@ -42,10 +44,22 @@ extern "C" void kernelMain(void* multibootStruct, uint32_t magicNumber) {
 		printf("Initializing Mouse...\n");
 		MouseDriver mouse(&interruptManager);	//TODO: Make event handler for the mouse later.
 		driverManager.addDriver(&mouse);
+
+		printf("Initializing PCI...\n");
+		PeripheralComponentInterconnectController pci;
+		pci.enumerateDevices(&driverManager, &interruptManager);
+
+		VideoGraphicsArrayDriver vga;
 		
 	printf("Activating Interrupts...\n");
 	interruptManager.activate();
 
+	vga.setMode(320, 200, 8);
+	for(uint16_t y = 0; y < 200; y++) {
+		for(uint16_t x = 0; x < 320; x++) {
+			vga.putPixel(x, y, 0x00, 0x00, 0xA8);
+		}
+	}
 	/*
 	* We dont want the kernel to ever stop.
 	* So, let's dive into an infinite loop.

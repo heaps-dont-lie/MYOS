@@ -6,8 +6,6 @@
 #include <drivers/keyboardDriver.h>
 #include <drivers/keyboardMap.h>
 
-extern void printf(char*);
-
 KeyboardDriver::KeyboardDriver(InterruptManager* interruptManager, KeyBoardEventHandler* eventHandler) 
 : HardwareInterruptHandler(KEYB_INT, interruptManager), commandPort(0x64), dataPort(0x60) {
 

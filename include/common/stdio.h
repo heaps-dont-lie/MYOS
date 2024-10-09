@@ -11,6 +11,7 @@
 #define NULL 0x0
 
 void printf(char* str);
+void printfHex(uint8_t hexValue);
 void clearScreen();
 
 #endif

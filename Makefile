@@ -9,8 +9,10 @@ objects = obj/loader.o \
 		  obj/hwcomms/ports.o \
 		  obj/hwcomms/interruptstubs.o \
 		  obj/hwcomms/interrupts.o \
+		  obj/hwcomms/pci.o \
 		  obj/drivers/keyboardDriver.o \
 		  obj/drivers/mouseDriver.o \
+		  obj/drivers/vgaDriver.o \
 		  obj/kernel.o
 
 obj/%.o: src/%.cpp

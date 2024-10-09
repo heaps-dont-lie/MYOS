@@ -47,6 +47,16 @@ void printf(char* str) {
 	}
 }
 
+void printfHex(uint8_t hexValue) {
+	char* hex = "0123456789ABCDEF";
+	char* toPrint = "00";
+
+	toPrint[0] = hex[(hexValue >> 4) & 0xF];
+	toPrint[1] = hex[(hexValue) & 0xF];
+
+	printf(toPrint);
+}
+
 void clearScreen() {
 	uint16_t* videoMemBaseAddr = (uint16_t*)0xb8000;
 
